@@ -3,14 +3,13 @@ import math
 
 def getTextToNumberTable():
     table = {chr(i+64): i for i in range(1,27)}
-    table[' '] = 27
+    table[' '] = 0
     return table
 
 
 def getNumberToTextTable():
     table = {i: chr(i+64) for i in range(1,27)}
     table[0] = ' '
-    table[27] = ' '
     return table
 
 
@@ -53,8 +52,7 @@ def splitMessage(message, n):
 def convertSplitMessage(vector, table):
     for i, split in enumerate(vector):
         for j, char in enumerate(split):
-            temp = vector[i][j]
-            vector[i][j] = table[temp]
+            vector[i][j] = table[vector[i][j]]
     return vector
 
 
@@ -62,12 +60,12 @@ def transformSplitMessage(vector, k):
     vector = np.array(vector)
     for i, split in enumerate(vector):
         temp = split
-        vector[i] = np.dot(temp, k)[0]
-    return vector
+        vector[i] = np.dot(k, temp)
+    return np.array(vector).T
 
 
 def convertBackToText(vector, table):
-    vector = np.array(vector)
+    vector = np.array(vector).T
     result = np.empty(vector.shape, dtype=str)
     for i, split in enumerate(vector):
         for j, num in enumerate(split):
@@ -80,10 +78,16 @@ def convertBackToText(vector, table):
 
 
 def main():
+    ##### CONFIG #####
+    # n = 2
     n = 4
     message = "PLEASE USE THE OTHER DOOR"
     textToNumber = getTextToNumberTable()
     numberToText = getNumberToTextTable()
+    # k = np.matrix([
+    #     [3, 5],
+    #     [1, 6]
+    # ])
     k = np.matrix([
         [2, 3, 5, 7],
         [11, 13, 17, 19],
@@ -116,8 +120,19 @@ def main():
     adjoint_k = cofactor_k.T
     inverse_k = adjoint_k * (1/det_k)
     inverse_k_in_mod_27 = (inverse_det_k * adjoint_k) % 27
+    split_encrypted_message = splitMessage(encryptedMessage, n)
+    converted_split_encrypted_message = convertSplitMessage([row[:] for row in split_encrypted_message], textToNumber)
+    transformed_split_encrypted_message = transformSplitMessage([row[:] for row in converted_split_encrypted_message], inverse_k_in_mod_27)
+    mod_split_encrypted_message = transformed_split_encrypted_message % 27
+    decryptedMessage = convertBackToText([row[:] for row in mod_split_encrypted_message], numberToText)
     print(f"Inverse of determinant of k: {inverse_det_k}")
     print(f"Inverse of k in mod 27:\n{inverse_k_in_mod_27}")
+    print(f"Message to decrypt:\n{encryptedMessage}")
+    print(f"Split encrypted message:\n{split_encrypted_message}")
+    print(f"Converted split encrypted message:\n{converted_split_encrypted_message}")
+    print(f"Transformed split encrypted message:\n{transformed_split_encrypted_message}")
+    print(f"Mod split encrypted message:\n{mod_split_encrypted_message}")
+    print(f"Decrypted message:\n{decryptedMessage}")
     print("-" * 20)
 
 
