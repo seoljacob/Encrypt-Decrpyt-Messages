@@ -13,6 +13,13 @@ def getNumberToTextTable():
     return table
 
 
+def getInvertibleMatrix(n):
+    while True:
+        matrix = np.random.randint(10, size=(n,n))
+        if np.round(np.linalg.det(matrix)) % 3 != 0:
+            return matrix
+
+
 def getInverseNumber(num):
     num = int(num)
     for i in range(1,27):
@@ -84,17 +91,18 @@ def main():
     message = "PLEASE USE THE OTHER DOOR"
     textToNumber = getTextToNumberTable()
     numberToText = getNumberToTextTable()
+    k = getInvertibleMatrix(n)
     # k = np.matrix([
     #     [3, 5],
     #     [1, 6]
     # ])
-    k = np.matrix([
-        [2, 3, 5, 7],
-        [11, 13, 17, 19],
-        [23, 29, 31, 37],
-        [41, 43, 47, 53]
-    ])
-    det_k = np.linalg.det(k)
+    # k = np.matrix([
+    #     [2, 3, 5, 7],
+    #     [11, 13, 17, 19],
+    #     [23, 29, 31, 37],
+    #     [41, 43, 47, 53]
+    # ])
+    det_k = np.round(np.linalg.det(k))
     print("-" * 20)
     print(f"Key matrix:\n{k}")
     print(f"Determinant of k: {det_k}")
